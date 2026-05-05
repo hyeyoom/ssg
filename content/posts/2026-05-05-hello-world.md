@@ -1,6 +1,6 @@
 +++
 title = "Hello, World"
-date = "2026-05-05"
+date = "2026-05-05T14:30:00+09:00"
 description = "첫 글"
 math = true
 +++

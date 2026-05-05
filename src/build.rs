@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::content::PostKind;
+use crate::content::{parse_published, PostKind};
 use crate::{feed, render, scanner, sitemap};
 use anyhow::{Context, Result};
 use std::fs;
@@ -30,7 +30,12 @@ pub fn run(project_root: &Path) -> Result<()> {
         .iter()
         .filter(|p| p.kind == PostKind::Article)
         .collect();
-    articles.sort_by(|a, b| b.frontmatter.date.cmp(&a.frontmatter.date));
+    // datetime desc 정렬. 파싱 실패한 글은 끝(가장 오래된)으로.
+    articles.sort_by(|a, b| {
+        let pa = parse_published(&a.frontmatter.date).ok();
+        let pb = parse_published(&b.frontmatter.date).ok();
+        pb.cmp(&pa)
+    });
     println!(
         "  found {} article(s), {} page(s)",
         articles.len(),
@@ -66,9 +71,12 @@ pub fn run(project_root: &Path) -> Result<()> {
         lastmod: None,
     }];
     for p in &articles {
+        let lastmod = parse_published(&p.frontmatter.date)
+            .map(|dt| dt.to_rfc3339())
+            .unwrap_or_else(|_| p.frontmatter.date.clone());
         urls.push(sitemap::SitemapUrl {
             loc: format!("{}/posts/{}/", base, p.slug),
-            lastmod: Some(p.frontmatter.date.clone()),
+            lastmod: Some(lastmod),
         });
     }
     if posts

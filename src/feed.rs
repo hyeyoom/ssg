@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::content::Post;
+use crate::content::{parse_published, Post};
 use crate::sitemap::xml_escape;
 
 pub fn build_rss(cfg: &Config, articles: &[&Post]) -> String {
@@ -18,6 +18,9 @@ pub fn build_rss(cfg: &Config, articles: &[&Post]) -> String {
     ));
     for p in articles.iter().take(20) {
         let url = format!("{}/posts/{}/", base, p.slug);
+        let pub_date = parse_published(&p.frontmatter.date)
+            .map(|dt| dt.to_rfc2822())
+            .unwrap_or_else(|_| p.frontmatter.date.clone());
         s.push_str("<item>\n");
         s.push_str(&format!(
             "<title>{}</title>\n",
@@ -28,10 +31,7 @@ pub fn build_rss(cfg: &Config, articles: &[&Post]) -> String {
             "<guid isPermaLink=\"true\">{}</guid>\n",
             xml_escape(&url)
         ));
-        s.push_str(&format!(
-            "<pubDate>{}</pubDate>\n",
-            xml_escape(&p.frontmatter.date)
-        ));
+        s.push_str(&format!("<pubDate>{}</pubDate>\n", xml_escape(&pub_date)));
         if let Some(d) = &p.frontmatter.description {
             s.push_str(&format!("<description>{}</description>\n", xml_escape(d)));
         }

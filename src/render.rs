@@ -1,10 +1,17 @@
 use crate::config::Config;
-use crate::content::Post;
+use crate::content::{display_kst, parse_published, Post};
 use crate::markdown;
 use anyhow::Result;
 use serde_json::json;
 use std::path::Path;
 use tera::{Context, Tera};
+
+fn post_dates(raw: &str) -> (String, String) {
+    match parse_published(raw) {
+        Ok(dt) => (display_kst(&dt), dt.to_rfc3339()),
+        Err(_) => (raw.to_string(), raw.to_string()),
+    }
+}
 
 pub struct Renderer {
     tera: Tera,
@@ -44,11 +51,12 @@ pub fn render_post(renderer: &Renderer, site: &Site, post: &Post) -> Result<Stri
         .description
         .clone()
         .unwrap_or_else(|| site.config.description.clone());
+    let (display_date, iso_date) = post_dates(&post.frontmatter.date);
     let json_ld = json!({
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": post.frontmatter.title,
-        "datePublished": post.frontmatter.date,
+        "datePublished": iso_date,
         "author": { "@type": "Person", "name": site.config.author },
         "mainEntityOfPage": canonical,
     })
@@ -69,7 +77,7 @@ pub fn render_post(renderer: &Renderer, site: &Site, post: &Post) -> Result<Stri
         "post",
         &json!({
             "title": post.frontmatter.title,
-            "date": post.frontmatter.date,
+            "date": display_date,
             "body": body_html,
         }),
     );
@@ -82,9 +90,10 @@ pub fn render_index(renderer: &Renderer, site: &Site, articles: &[&Post]) -> Res
     let posts: Vec<_> = articles
         .iter()
         .map(|p| {
+            let (display_date, _) = post_dates(&p.frontmatter.date);
             json!({
                 "title": p.frontmatter.title,
-                "date": p.frontmatter.date,
+                "date": display_date,
                 "url": format!("/posts/{}/", p.slug),
             })
         })
