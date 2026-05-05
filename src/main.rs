@@ -10,6 +10,7 @@ mod sitemap;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use std::time::Instant;
 
 #[derive(Parser)]
 #[command(name = "ssg", version, about = "minimal personal blog SSG")]
@@ -34,8 +35,13 @@ fn main() -> Result<()> {
     let root = std::env::current_dir()?;
     match cli.cmd {
         Cmd::Build => {
+            let start = Instant::now();
             build::run(&root)?;
-            println!("built site → {}", root.join("public").display());
+            println!(
+                "built site → {} ({:?})",
+                root.join("public").display(),
+                start.elapsed()
+            );
         }
         Cmd::New { title } => {
             let path = new::run(&root, &title)?;
