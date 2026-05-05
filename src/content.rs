@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Result};
 use serde::Deserialize;
-use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Frontmatter {
@@ -22,7 +21,6 @@ pub struct Post {
     pub slug: String,
     pub frontmatter: Frontmatter,
     pub body_md: String,
-    pub source_path: PathBuf,
     pub kind: PostKind,
 }
 

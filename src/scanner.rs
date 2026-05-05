@@ -30,7 +30,6 @@ pub fn scan(content_dir: &Path) -> Result<Vec<Post>> {
             slug,
             frontmatter: fm,
             body_md: body,
-            source_path: path.to_path_buf(),
             kind,
         });
     }

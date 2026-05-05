@@ -45,7 +45,6 @@ pub fn build_rss(cfg: &Config, articles: &[&Post]) -> String {
 mod tests {
     use super::*;
     use crate::content::{Frontmatter, PostKind};
-    use std::path::PathBuf;
 
     fn cfg() -> Config {
         Config {
@@ -67,7 +66,6 @@ mod tests {
                 math: false,
             },
             body_md: String::new(),
-            source_path: PathBuf::new(),
             kind: PostKind::Article,
         }
     }

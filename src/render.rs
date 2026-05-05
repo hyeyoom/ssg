@@ -164,7 +164,6 @@ mod tests {
                 math,
             },
             body_md: "Body **bold**".into(),
-            source_path: PathBuf::new(),
             kind: PostKind::Article,
         }
     }
