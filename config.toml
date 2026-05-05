@@ -1,0 +1,5 @@
+title = "ssg demo"
+author = "Hyeyoom"
+description = "personal tech blog"
+base_url = "https://hyeyoom.github.io/ssg"
+language = "ko"
