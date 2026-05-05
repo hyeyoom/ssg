@@ -1,5 +1,6 @@
 mod config;
 mod content;
+mod feed;
 mod markdown;
 mod render;
 mod scanner;
