@@ -33,7 +33,10 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     let root = std::env::current_dir()?;
     match cli.cmd {
-        Cmd::Build => build::run(&root)?,
+        Cmd::Build => {
+            build::run(&root)?;
+            println!("built site → {}", root.join("public").display());
+        }
         Cmd::New { title } => {
             let path = new::run(&root, &title)?;
             println!("created {}", path.display());
